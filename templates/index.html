@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KVĚTA Online</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+   <div class="wrapper">
+    <main>
+        <header>
+            <div class="tagline">
+                <h1>KVĚTA Online</h1>
+                <h2>KVantitativní VĚTná Analýza: jazyky, texty, data...</h2>
+            </div>
+            <a href="https://www.quitaonline.com/product/quitaonline_profi/"><button>Koupit KVĚTAOnline Profi</button></a>
+        </header>
+
+        <div id="upload" class="bento">
+            <p id="upload-label">Nahraj .TXT soubor k analýze.</p>
+            <p id="file-name-display" class="file-name"></p>
+            <form id="upload-form">
+				<label id="upload-button" for="file-upload" class="custom-file-upload">Vybrat soubor</label>
+				<input id="file-upload" name="file" type="file" accept=".txt" />
+				<button id="submit-button" type="button" class="custom-file-upload" style="display: none; padding: 10px;">Spustit analýzu</button>
+			</form>
+			<p id="server-response"></p>
+        </div>
+
+        <div class="bento-group" id="infoboxes">
+            <div id="why" class="bento">
+                <h2>Proč KVĚTA?</h2>
+                <p>Kolik času strávíte programováním, přeformátováním, opravou a předzpracováním dat, jejich načítáním do statistických programů? Jak dlouho trvá vytvořit pěkné grafy k tisku pro knihu? KVĚTA na to všechno myslí a dává vám možnost se o to nestarat.</p>
+            </div>
+            <div id="how" class="bento">
+                <h2>Python a JS interface</h2>
+                <p>QUITA využívá nástroje pro co nejrychlejší práci s daty. Pro matematické výpočty se používají jazyky Python a JavaScript. Ve verzi Pro nezískáte nic.</p>
+            </div>
+            <div id="who" class="bento">
+                <h2>Od lingvistů, pro lingvisty</h2>
+                <p><img src="templates/babyseal.png" alt="Překrásný obrázek mláděte tuleně">KVĚTA mi změnila život. Už se nemusím obávat kvantitativní lingvistiky!</p>
+                <p style="float:left">— Vilém Tuleňák, ministr statistiky</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>KVĚTA je projekt stvořený pro hodinu ALG4 tzv. na flex. Podobnost s existujícími kvantitativně-lingvistickými softwary je čistě záměrná.</p>
+        </footer>
+    </main>
+   </div>
+</body>
+<script>
+    const fileInput = document.getElementById("file-upload");
+    const fileNameDisplay = document.getElementById("file-name-display");
+    const uploadLabel = document.getElementById("upload-label");
+    const uploadButton = document.getElementById("upload-button");
+    const infoBoxes = document.getElementById("infoboxes");
+
+    fileInput.addEventListener("change", function () {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name;
+            uploadLabel.textContent = "";
+            submitButton.style.display = "flex"
+        }
+		
+		else {
+            fileNameDisplay.textContent = ""; // Reset if nothing selected
+            uploadLabel.textContent = "Nahraj soubor k analýze.";
+        }
+    });
+</script>
+<script>
+	const submitButton = document.getElementById("submit-button");
+	const serverResponse = document.getElementById("server-response");
+
+	submitButton.addEventListener("click", async function () {
+		if (fileInput.files.length === 0) {
+			serverResponse.textContent = "Nevybral jsi soubor.";
+			return;
+		}
+
+		serverResponse.textContent = "Načítám data, chvilku moment...";
+
+		const formData = new FormData();
+		formData.append("file", fileInput.files[0]);
+
+		try {
+			const res = await fetch("/process", {
+				method: "POST",
+				body: formData
+			});
+
+			if (!res.ok) {
+				throw new Error("Chyba serveru.");
+			}
+
+			const data = await res.json();
+			serverResponse.innerHTML = `
+				<strong>Tokenů:</strong> ${data.tokens} <br>
+				<strong>Typů:</strong> ${data.types} <br>
+				<strong>TTR:</strong> ${data.ttr.toFixed(3)}
+			`;
+		} catch (err) {
+			serverResponse.textContent = "Něco se pokazilo: " + err.message;
+		}
+	});
+</script>
+</html>
