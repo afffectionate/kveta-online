@@ -60,6 +60,15 @@ h1 {
     margin-bottom: 0px;
 }
 
+#main-title::after {
+  content: url("/static/kveta-logo.svg");
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  margin-left: var(--space-xs);
+  vertical-align: middle;
+}
+
 h2 {
     font-family: "Inter";
     font-weight: 400;
@@ -72,6 +81,11 @@ p {
     font-weight: 400;
     font-size: 16px;
 }
+
+svg text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+  }
 
 button {
     font-family: "Inter";

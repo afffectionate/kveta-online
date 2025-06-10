@@ -6,6 +6,7 @@
     <title>KVĚTA Online</title>
     <link rel="stylesheet" href="static/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
 </head>
@@ -14,7 +15,7 @@
     <main>
         <header>
             <div class="tagline">
-                <h1>KVĚTA Online</h1>
+                <h1 id="main-title">KVĚTA Online</h1>
                 <h2>KVantitativní VĚTná Analýza: jazyky, texty, data...</h2>
             </div>
             <a href="https://www.quitaonline.com/product/quitaonline_profi/"><button>Koupit KVĚTAOnline Profi</button></a>
@@ -28,7 +29,10 @@
 				<input id="file-upload" name="file" type="file" accept=".txt" />
 				<button id="submit-button" type="button" class="custom-file-upload" style="display: none; padding: 10px;">Spustit analýzu</button>
 			</form>
-			<p id="server-response"></p>
+            <div id="results-container">
+                <h3 id="server-response"></h3>
+                <div id="word-cloud"></div>
+            </div>
         </div>
 
         <div class="bento-group" id="infoboxes">
@@ -38,11 +42,11 @@
             </div>
             <div id="how" class="bento">
                 <h2>Python a JS interface</h2>
-                <p>QUITA využívá nástroje pro co nejrychlejší práci s daty. Pro matematické výpočty se používají jazyky Python a JavaScript. Ve verzi Pro nezískáte nic.</p>
+                <p>KVĚTA využívá nástroje pro co nejrychlejší práci s daty. Pro matematické výpočty se používají jazyky Python a JavaScript. Ve verzi Pro nezískáte nic.</p>
             </div>
             <div id="who" class="bento">
                 <h2>Od lingvistů, pro lingvisty</h2>
-                <p><img src="templates/babyseal.png" alt="Překrásný obrázek mláděte tuleně">KVĚTA mi změnila život. Už se nemusím obávat kvantitativní lingvistiky!</p>
+                <p><img src="static/babyseal.png" alt="Překrásný obrázek mláděte tuleně">KVĚTA mi změnila život. Už se nemusím obávat kvantitativní lingvistiky!</p>
                 <p style="float:left">— Vilém Tuleňák, ministr statistiky</p>
             </div>
         </div>
@@ -68,7 +72,7 @@
         }
 		
 		else {
-            fileNameDisplay.textContent = ""; // Reset if nothing selected
+            fileNameDisplay.textContent = "";
             uploadLabel.textContent = "Nahraj soubor k analýze.";
         }
     });
@@ -89,24 +93,70 @@
 		formData.append("file", fileInput.files[0]);
 
 		try {
-			const res = await fetch("/process", {
+			const response = await fetch("/process", {
 				method: "POST",
 				body: formData
 			});
 
-			if (!res.ok) {
+			if (!response.ok) {
 				throw new Error("Chyba serveru.");
 			}
 
-			const data = await res.json();
-			serverResponse.innerHTML = `
+			const data = await response.json();
+			serverResponse.innerHTML = `<h3>Výsledky analýzy:</h3>
 				<strong>Tokenů:</strong> ${data.tokens} <br>
 				<strong>Typů:</strong> ${data.types} <br>
 				<strong>TTR:</strong> ${data.ttr.toFixed(3)}
 			`;
+            renderWordCloud(data.wordCloudData);
+            console.log(data)
 		} catch (err) {
 			serverResponse.textContent = "Něco se pokazilo: " + err.message;
 		}
 	});
+</script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
+<script>
+function renderWordCloud(words) {
+  const width = 800;
+  const height = 400;
+
+  const layout = d3.layout.cloud()
+    .size([width, height])
+    .words(words.map(([word, freq]) => ({ text: word, size: freq })))
+    .padding(5)
+    .rotate(() => ~~(Math.random() * 2) * 90)
+    .fontSize(d => Math.sqrt(d.size) * 10)
+    .on("end", draw);
+
+  layout.start();
+
+  function draw(words) {
+    const colors = [
+        "#80b5c0", "#3c7689", "#479890", "#52b997", "#4daa94"
+    ];
+
+    d3.select("#word-cloud").html("")  // clear previous
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", `translate(${width / 2},${height / 2})`)
+      .selectAll("text")
+      .data(words)
+      .join("text")
+      .style("display", "flex")
+      .style("font-size", d => d.size + "px")
+      .style("fill", () => {
+        const base = colors[Math.floor(Math.random() * colors.length)];
+        const opacity = 0.4 + Math.random() * 0.5;  // 0.4 to 0.9
+        return d3.color(base).copy({ opacity });
+        })
+      .attr("text-anchor", "middle")
+      .attr("transform", d => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
+      .text(d => d.text);
+  }
+}
 </script>
 </html>
