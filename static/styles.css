@@ -270,8 +270,7 @@ input[type="file"] {
   flex: 1 1 calc(50% - 16px); /* two per row with spacing */
   min-width: 300px;
   min-height: 400px; /* Increased from 300px */
-  height: 400px; /* Increased from 300px */
-  border: 1px solid #ddd; /* optional */
+  height: 450px; /* Increased from 300px */
   border-radius: 15px;
   padding: 8px;
   overflow: hidden;
@@ -302,8 +301,12 @@ input[type="file"] {
     position: relative;
 }
 
-#word-lengths {}
-#sentence-lengths {}
+#word-lengths, #sentence-lengths {
+  height: calc(100% - 40px); /* Leave room for title */
+  width: 100%;
+  position: relative;
+  min-height: 350px; /* Ensure minimum height for chart readability */
+}
 
 #upload p {
     display: block; 
