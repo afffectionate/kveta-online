@@ -39,13 +39,17 @@ def get_word_frequencies(lemmas):
 def get_hapaxy(tokens):
     freq = Counter(tokens)
     return [word for word, count in freq.items() if count == 1]
+
+def get_POS_count(doc):
+    pos_freqs = Counter([token.pos_ for token in doc])
+    return pos_freqs
     
 @app.route("/", methods=["GET"])
 async def display_index_page(request):
     return await response.file("templates/index.html")
 
 @app.route("/process", methods=["POST"])
-async def calculate_shit(request): 
+async def analyze_text(request): 
     file = request.files.get("file")
     file_content = file.body.decode('utf-8')
 
@@ -53,16 +57,17 @@ async def calculate_shit(request):
     tokens = tokenize_text(doc)
     types = get_types(tokens)
 
-    result_dict = {
+    response_content = {
         "tokens" : len(tokens),
         "types" : len(types),
-        "ttr" : len(tokens)/len(types),
+        "ttr" : len(types)/len(tokens),
         "wordLengths" : get_word_lengths(tokens),
         "sentenceLengths" : get_sentence_lengths(doc),
         "hapaxLegomena" : get_hapaxy(tokens),
-        "wordCloudData" : get_word_frequencies(get_lemmas(doc))
+        "wordCloudData" : get_word_frequencies(get_lemmas(doc)),
+        "posFrequencies" : get_POS_count(doc)
     }
-    return response.json(result_dict)
+    return response.json(response_content)
 
 if __name__ == "__main__":
     app.run()

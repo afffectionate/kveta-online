@@ -24,6 +24,10 @@
     .header {
         flex-direction: column;
     }
+
+    #upload-form {
+        flex-direction: column;
+    }
   }
 
 * {
@@ -35,9 +39,9 @@ body {
     background-size: 200% 200%;
     animation: gradient 15s ease infinite;
     min-height: 100vh;
-    min-width: 100vw;
     margin: 0;
     color: #282F2C;
+    font-family: "Inter", sans-serif
 }
 
 @keyframes gradient {
@@ -70,14 +74,12 @@ h1 {
 }
 
 h2 {
-    font-family: "Inter";
     font-weight: 400;
     font-size: 20px;
     margin:0px
 }
 
 p {
-    font-family: "Inter";
     font-weight: 400;
     font-size: 16px;
 }
@@ -104,7 +106,6 @@ button {
 }
 
 button:hover {
-    font-family: "Inter";
     background-color: #3b7588;
     transition: 0.3s;
     cursor: pointer;
@@ -115,7 +116,6 @@ button:hover {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    min-width: 100vw;
     color: #282F2C;
     overflow: hidden;
 }
@@ -198,7 +198,6 @@ input[type="file"] {
 }
 
 .custom-file-upload {
-    font-family: "Inter";
     background-color: #52B997;
     box-shadow: 0px 4px 4px 0 rgba(82, 185, 151, 0.5);
     border-radius: 10px;
@@ -206,6 +205,7 @@ input[type="file"] {
     color: #EDF3F3;
     font-size: 16px;
     padding: var(--space-xs) var(--space-sm);
+    margin: var(--space-xs) var(--space-sm);
     min-width: 150px;
     height: 50px;
     display: inline-flex;
@@ -220,21 +220,93 @@ input[type="file"] {
     background-color: #3b7588;
 }
 
+#upload-form {
+    display: flex;
+    text-align: center;
+    flex-direction: row;
+}
+
 #submit-button {
     display: none;
+    background-color: #52B997;
+    box-shadow: 0px 4px 4px 0 rgba(82, 185, 151, 0.5);
+    border-radius: 10px;
+    border: none;
+    color: #EDF3F3;
+    font-size: 16px;
+    padding: var(--space-xs) var(--space-sm);
+    margin: var(--space-xs) var(--space-sm);
+    min-width: 150px;
+    height: 50px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-overflow: ellipsis;
+}
+
+#submit-button:hover {
+    background-color: #3b7588;
 }
 
 .file-name {
-    font-family: "Inter";
     font-size: 14px;
     color: #3b7588;
     margin-top: var(--space-xs);
     word-break: break-word;
 }
 
+#results-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  width: 100%;
+  display: none;
+}
+
+#results-container > div {
+  flex: 1 1 calc(50% - 16px); /* two per row with spacing */
+  min-width: 300px;
+  min-height: 400px; /* Increased from 300px */
+  height: 400px; /* Increased from 300px */
+  border: 1px solid #ddd; /* optional */
+  border-radius: 15px;
+  padding: 8px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+#basics {
+    display: flex;
+    max-width: 50%;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: var(--space-sm)
+}
+
+#word-cloud {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    position: relative;
+}
+
+#pos-chart {
+    height: calc(100% - 30px); /* Leave room for the h3 title */
+    width: 100%;
+    position: relative;
+}
+
+#word-lengths {}
+#sentence-lengths {}
+
 #upload p {
     display: block; 
-    font-family: "Inter";
     font-weight: 400;
     color: #282F2C;
 }
@@ -247,7 +319,6 @@ footer {
 } 
 
 footer p {
-    font-family: "Inter";
     font-weight: semibold;
     font-size: 16px;
     color: #7CB6CA;

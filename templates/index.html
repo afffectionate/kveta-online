@@ -27,13 +27,29 @@
             <form id="upload-form">
 				<label id="upload-button" for="file-upload" class="custom-file-upload">Vybrat soubor</label>
 				<input id="file-upload" name="file" type="file" accept=".txt" />
-				<button id="submit-button" type="button" class="custom-file-upload" style="display: none; padding: 10px;">Spustit analýzu</button>
+				<button id="submit-button" type="button" style="display: none;">Analyzovat text</button>
 			</form>
-            <div id="results-container">
-                <h3 id="server-response"></h3>
-                <div id="word-cloud"></div>
+            <p id="server-response-title"></p>
+            <div id="basics"></div>
+                <div id="results-container">
+                    <div>
+                        <h3>Vizualizace nejčastějších slov:</h3>
+                        <div id="word-cloud"></div>
+                    </div>
+                    <div>
+                        <h3>Zastoupení slovních druhů:</h3>
+                        <div id="pos-chart"></div>
+                    </div>
+                    <div>
+                        <h3>Délky slov:</h3>
+                        <div id="word-lengths"></div>
+                    </div>
+                    <div>
+                        <h3>Délky vět:</h3>
+                        <div id="sentence-lengths"></div>
+                    </div>
+                </div>
             </div>
-        </div>
 
         <div class="bento-group" id="infoboxes">
             <div id="why" class="bento">
@@ -63,10 +79,12 @@
     const uploadLabel = document.getElementById("upload-label");
     const uploadButton = document.getElementById("upload-button");
     const infoBoxes = document.getElementById("infoboxes");
+    const submitButton = document.getElementById("submit-button");
 
     fileInput.addEventListener("change", function () {
         if (fileInput.files.length > 0) {
             fileNameDisplay.textContent = fileInput.files[0].name;
+            uploadButton.textContent = "Vybrat jiný soubor"
             uploadLabel.textContent = "";
             submitButton.style.display = "flex"
         }
@@ -77,9 +95,13 @@
         }
     });
 </script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
 <script>
-	const submitButton = document.getElementById("submit-button");
-	const serverResponse = document.getElementById("server-response");
+	const serverResponse = document.getElementById("server-response-title");
+    const basics = document.getElementById("basics");
+    const resultsContainer = document.getElementById("results-container");
 
 	submitButton.addEventListener("click", async function () {
 		if (fileInput.files.length === 0) {
@@ -103,24 +125,78 @@
 			}
 
 			const data = await response.json();
-			serverResponse.innerHTML = `<h3>Výsledky analýzy:</h3>
-				<strong>Tokenů:</strong> ${data.tokens} <br>
-				<strong>Typů:</strong> ${data.types} <br>
-				<strong>TTR:</strong> ${data.ttr.toFixed(3)}
+            resultsContainer.style.display = "flex"
+			serverResponse.innerHTML = "<h3>Výsledky analýzy:</h3>"
+            basics.innerHTML = `
+				<p><strong>Tokenů:</strong> ${data.tokens}</p>
+				<p><strong>Typů:</strong> ${data.types} </p>
+				<p><strong>TTR:</strong> ${data.ttr.toFixed(3)}</p>
 			`;
+
             renderWordCloud(data.wordCloudData);
+            renderPOSChart(Object.keys(data.posFrequencies),Object.values(data.posFrequencies))
+            renderSentenceLengthChart(data.sentenceLengths)
+            renderWordLengthChart(data.wordLengths)
+
             console.log(data)
+
 		} catch (err) {
 			serverResponse.textContent = "Něco se pokazilo: " + err.message;
 		}
 	});
 </script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
 <script>
+function renderPOSChart(labels,values) {
+    const baseColors = ["#80b5c0", "#3c7689", "#479890", "#52b997", "#4daa94"];
+
+    function randomOpacityColor(baseHex) {
+    const hex = baseHex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const opacity = (0.4 + Math.random() * 0.5).toFixed(2); // 0.4 to 0.9
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+
+    const colors = labels.map(() => {
+    const base = baseColors[Math.floor(Math.random() * baseColors.length)];
+    return randomOpacityColor(base);
+    });
+
+    const chartdata = [{
+    type: "pie",
+    labels: labels,
+    values: values,
+    textinfo: "label",
+    hoverinfo: "label+value+percent",
+    marker: {
+        colors: colors
+    }
+    }];
+    const layout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { t: 0, b: 0, l: 0, r: 0 },
+        showlegend: false,
+        font: {
+            family: "Inter, sans-serif",
+            size: 12,
+            color: "#282F2C"
+        }
+    };
+
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+
+    Plotly.newPlot("pos-chart", chartdata, layout, config);
+}
+
 function renderWordCloud(words) {
-  const width = 800;
-  const height = 400;
+  const container = document.getElementById("word-cloud");
+  const width = container.clientWidth - 10;
+  const height = container.clientHeight - 10;
 
   const layout = d3.layout.cloud()
     .size([width, height])
@@ -157,6 +233,136 @@ function renderWordCloud(words) {
       .attr("transform", d => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
       .text(d => d.text);
   }
+}
+function renderWordLengthChart(wordLengths) {
+    // Count frequency of each word length
+    const lengthCounts = {};
+    wordLengths.forEach(length => {
+        lengthCounts[length] = (lengthCounts[length] || 0) + 1;
+    });
+   
+    // Convert to arrays for plotting
+    const lengths = Object.keys(lengthCounts).map(Number).sort((a, b) => a - b);
+    const counts = lengths.map(length => lengthCounts[length]);
+   
+    const chartdata = [{
+        type: "bar",
+        x: lengths,
+        y: counts,
+        marker: {
+            color: "#80b5c0"
+        },
+        hovertemplate: '<b>Length:</b> %{x} letters<br><b>Count:</b> %{y}<extra></extra>'
+    }];
+    
+    const layout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { t: 30, b: 60, l: 60, r: 30 }, // Increased margins significantly
+        font: {
+            family: "Inter, sans-serif",
+            size: 12,
+            color: "#282F2C"
+        },
+        xaxis: {
+            title: {
+                text: "Word Length (letters)",
+                font: { size: 14 },
+                standoff: 20 // More space between axis and title
+            },
+            gridcolor: 'rgba(178, 201, 205, 0.3)',
+            tickfont: { size: 11 },
+            range: [Math.min(...lengths) - 0.5, Math.max(...lengths) + 0.5], // Limit x-axis range
+            dtick: 1, // Show every integer tick
+            tickmode: 'linear'
+        },
+        yaxis: {
+            title: {
+                text: "Frequency",
+                font: { size: 14 },
+                standoff: 20
+            },
+            gridcolor: 'rgba(178, 201, 205, 0.3)',
+            tickfont: { size: 11 }
+        },
+        autosize: true,
+        bargap: 0.2 // Add some space between bars
+    };
+    
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+    
+    Plotly.newPlot("word-lengths", chartdata, layout, config);
+}
+
+function renderSentenceLengthChart(sentenceLengths) {
+    // Count frequency of each sentence length
+    const lengthCounts = {};
+    sentenceLengths.forEach(length => {
+        lengthCounts[length] = (lengthCounts[length] || 0) + 1;
+    });
+   
+    // Convert to arrays for plotting
+    const lengths = Object.keys(lengthCounts).map(Number).sort((a, b) => a - b);
+    const counts = lengths.map(length => lengthCounts[length]);
+    
+    // Filter to show only reasonable sentence lengths (e.g., up to 50 words)
+    const maxReasonableLength = Math.min(50, Math.max(...lengths));
+    const filteredLengths = lengths.filter(l => l <= maxReasonableLength);
+    const filteredCounts = filteredLengths.map(length => lengthCounts[length]);
+   
+    const chartdata = [{
+        type: "bar",
+        x: filteredLengths,
+        y: filteredCounts,
+        marker: {
+            color: "#80b5c0"
+        },
+        hovertemplate: '<b>Length:</b> %{x} words<br><b>Count:</b> %{y}<extra></extra>'
+    }];
+    
+    const layout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { t: 30, b: 60, l: 60, r: 30 }, // Increased margins significantly
+        font: {
+            family: "Inter, sans-serif",
+            size: 12,
+            color: "#282F2C"
+        },
+        xaxis: {
+            title: {
+                text: "Sentence Length (words)",
+                font: { size: 14 },
+                standoff: 20 // More space between axis and title
+            },
+            gridcolor: 'rgba(178, 201, 205, 0.3)',
+            tickfont: { size: 11 },
+            range: [0, maxReasonableLength + 1], // Limit x-axis to reasonable range
+            dtick: Math.max(1, Math.floor(maxReasonableLength / 20)), // Reasonable tick spacing
+            tickmode: 'linear'
+        },
+        yaxis: {
+            title: {
+                text: "Frequency",
+                font: { size: 14 },
+                standoff: 20
+            },
+            gridcolor: 'rgba(178, 201, 205, 0.3)',
+            tickfont: { size: 11 }
+        },
+        autosize: true,
+        bargap: 0.2 // Add some space between bars
+    };
+    
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+    
+    Plotly.newPlot("sentence-lengths", chartdata, layout, config);
 }
 </script>
 </html>
