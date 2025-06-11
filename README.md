@@ -4,9 +4,9 @@
 
 ### Kdo je Květa
 
-KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru programu QUITA Online. Po nahrání .txt souboru se uživateli zobrazí jednoduchý přehled kvantitativně-lingvistických statistik.
+KVĚTA Online je webová aplikace pro základní kvantitativní analýzu textů inspirovaná nástrojem QUITA Online. Po nahrání .txt souboru se uživateli zobrazí přehled základních statistických údajů o textu, jako je počet slov, délka vět, nebo nejčastější slova.
 
-⚠ POZOR: Určité komponenty aplikace (POS tagging) fungují pouze pro texty v anglickém jazyce.
+⚠ **POZOR:** Gramatická analýza (např. rozpoznávání slovních druhů) funguje pouze pro texty v angličtině. Pro jiné jazyky budou výsledky neúplné nebo nepřesné.
 
 ### Funkce:
 - Počet tokenů, typů, TTR
@@ -21,8 +21,6 @@ KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru prog
 - Po chvíli se zobrazí výsledky analýzy.
 
 ### Instalace
-
-
 
 ```bash
 python3 -m venv venv && source venv/bin/activate
@@ -52,6 +50,28 @@ Má dvě hlavní routy:
 - `/` — zobrazuje hlavní stránku (index.html).
 
 - `/process` — přijímá POST požadavek s textovým souborem, analyzuje text a vrací JSON s výsledky pro zobrazení na frontendu.
+
+Vrací response ve formátu:
+```json
+{
+  "tokens": 1500,
+  "types": 700,
+  "ttr": 0.47,
+  "wordLengths": [4, 5, 6, 3, 7],
+  "sentenceLengths": [12, 15, 9],
+  "hapaxLegomena": ["coalescence", "stochastic"],
+  "wordCloudData": {
+    "data": 120,
+    "model": 95,
+    "language": 30
+  },
+  "posFrequencies": {
+    "NOUN": 300,
+    "VERB": 200,
+    "ADJ": 100
+  }
+}
+```
 
 **Frontend**  
 Statická HTML stránka se základním designem v CSS. JavaScript zajišťuje nahrávání souboru a posílání na backend přes fetch API. Po obdržení JSONu dynamicky generuje a zobrazí výsledky pomocí knihoven Plotly a D3js.
