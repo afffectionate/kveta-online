@@ -4,13 +4,13 @@
 
 ### Kdo je Květa
 
-KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru programu QUITA Online. Po nahrání .txt souboru se uživateli zobrazí jednoduchý přehled kvantitativně-lingvistických statistik.
+KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru programu QUITA Online. Po nahrání .txt souboru se uživateli zobrazí jednoduchý přehled kvantitativně-lingvistických statistik - word cloud nejčastějších slov, graf poměru výskytu slovních druhů a grafy délek vět a slov.
 
-⚠ POZOR: Určité komponenty aplikace fungují pouze pro texty v anglickém jazyce.
+⚠ POZOR: Určité komponenty aplikace (POS tagging) fungují pouze pro texty v anglickém jazyce.
 
 ### Instalace a spuštění
 - Vyžaduje Python 3.8+
-- Knihovny nainstalujete příkazem `pip install sanic regex plotly`.
+- Knihovny nainstalujete příkazem `pip install sanic regex plotly spacy`.
 - Server spustíte přes `python server.py`.
 - Nástroj bude dostupný na adrese `http://localhost:8000`.
 
@@ -46,6 +46,4 @@ Má dvě hlavní routy:
 - `/process` — přijímá POST požadavek s textovým souborem, analyzuje text a vrací JSON s výsledky pro zobrazení na frontendu.
 
 **Frontend**  
-Statická HTML stránka se základním designem v CSS. JavaScript zajišťuje nahrávání souboru a posílání na backend přes fetch API. Po obdržení JSONu dynamicky generuje a zobrazí výsledky.
-
-Plánuje se integrace Plotly pro zobrazení grafů.
+Statická HTML stránka se základním designem v CSS. JavaScript zajišťuje nahrávání souboru a posílání na backend přes fetch API. Po obdržení JSONu dynamicky generuje a zobrazí výsledky pomocí knihoven Plotly a D3js.
