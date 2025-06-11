@@ -81,4 +81,4 @@ Vrací response ve formátu:
     "ADJ": 100
   }
 }
-``
+```
