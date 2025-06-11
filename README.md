@@ -4,17 +4,15 @@
 
 ### Kdo je Květa
 
-KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru programu QUITA Online. Po nahrání .txt souboru se uživateli zobrazí jednoduchý přehled kvantitativně-lingvistických statistik - word cloud nejčastějších slov, graf poměru výskytu slovních druhů a grafy délek vět a slov.
+KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru programu QUITA Online. Po nahrání .txt souboru se uživateli zobrazí jednoduchý přehled kvantitativně-lingvistických statistik.
 
 ⚠ POZOR: Určité komponenty aplikace (POS tagging) fungují pouze pro texty v anglickém jazyce.
 
-### Instalace a spuštění
-- Vyžaduje Python 3.8+
-- Knihovny nainstalujete příkazem `pip install sanic regex plotly spacy`.
-- Server spustíte přes `python server.py`.
-- Nástroj bude dostupný na adrese `http://localhost:8000`.
-
-⚠ *V budoucnu přejde nástroj na Docker, aktuální řešení je dočasné.*
+### Funkce:
+- Počet tokenů, typů, TTR
+- Word cloud nejčastějších slov
+- Grafy délek slov a vět
+- Graf zastoupení slovních druhů
 
 ### Jak nástroj používat
 
@@ -22,13 +20,23 @@ KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru prog
 - Klikněte na „Spustit analýzu“.
 - Po chvíli se zobrazí výsledky analýzy.
 
+### Instalace
+
+
+
+```bash
+python3 -m venv venv && source venv/bin/activate
+pip install sanic spacy
+python -m spacy download en_core_web_sm
+python server.py
+```
+
+Aplikace poběží na [http://localhost:8000](http://localhost:8000).
 
 ## 2) Programátorská dokumentace
 
 ### Dependencies
-- Sanic — backendový webový framework
-- Regex — tokenizace textu
-- Plotly — generování grafů na frontend
+Aplikace vyžaduje knihovny `Sanic` (asynchronní web server) a `spaCy` (NLP knihovna pro zpracování textu).
 
 ### Instalace a spuštění
 
