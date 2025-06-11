@@ -6,6 +6,8 @@
 
 KVĚTA Online je webová aplikace pro analýzu textů vzniknuvší po vzoru programu QUITA Online. Po nahrání .txt souboru se uživateli zobrazí jednoduchý přehled kvantitativně-lingvistických statistik.
 
+⚠ POZOR: Určité komponenty aplikace fungují pouze pro texty v anglickém jazyce.
+
 ### Instalace a spuštění
 - Vyžaduje Python 3.8+
 - Knihovny nainstalujete příkazem `pip install sanic regex plotly`.
