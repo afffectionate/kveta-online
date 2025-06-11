@@ -2,13 +2,13 @@
 
 ## 1) Uživatelská dokumentace
 
-### Kdo je Květa
+### Kdo je Květa?
 
 KVĚTA Online je webová aplikace pro základní kvantitativní analýzu textů inspirovaná nástrojem QUITA Online. Po nahrání .txt souboru se uživateli zobrazí přehled základních statistických údajů o textu, jako je počet slov, délka vět, nebo nejčastější slova.
 
 ⚠ **POZOR:** Gramatická analýza (např. rozpoznávání slovních druhů) funguje pouze pro texty v angličtině. Pro jiné jazyky budou výsledky neúplné nebo nepřesné.
 
-### Funkce:
+### Funkce
 - Počet tokenů, typů, TTR
 - Word cloud nejčastějších slov
 - Grafy délek slov a vět
