@@ -73,6 +73,11 @@
     </main>
    </div>
 </body>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
+
 <script>
     const fileInput = document.getElementById("file-upload");
     const fileNameDisplay = document.getElementById("file-name-display");
@@ -80,6 +85,9 @@
     const uploadButton = document.getElementById("upload-button");
     const infoBoxes = document.getElementById("infoboxes");
     const submitButton = document.getElementById("submit-button");
+	const serverResponse = document.getElementById("server-response-title");
+    const basics = document.getElementById("basics");
+    const resultsContainer = document.getElementById("results-container");
 
     fileInput.addEventListener("change", function () {
         if (fileInput.files.length > 0) {
@@ -94,14 +102,6 @@
             uploadLabel.textContent = "Nahraj soubor k analýze.";
         }
     });
-</script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://unpkg.com/d3-cloud/build/d3.layout.cloud.js"></script>
-<script>
-	const serverResponse = document.getElementById("server-response-title");
-    const basics = document.getElementById("basics");
-    const resultsContainer = document.getElementById("results-container");
 
 	submitButton.addEventListener("click", async function () {
 		if (fileInput.files.length === 0) {
@@ -192,18 +192,31 @@ function renderPOSChart(labels,values) {
 
     Plotly.newPlot("pos-chart", chartdata, layout, config);
 }
-
 function renderWordCloud(words) {
   const container = document.getElementById("word-cloud");
   const width = container.clientWidth - 10;
   const height = container.clientHeight - 10;
 
+  const maxFontSize = 80;
+  const minFontSize = 20;
+
+  // Normalize frequencies to a range of [0, 1]
+  const freqs = words.map(w => w[1]);
+  const maxFreq = Math.max(...freqs);
+  const minFreq = Math.min(...freqs);
+  const scale = d3.scaleLinear()
+    .domain([minFreq, maxFreq])
+    .range([minFontSize, maxFontSize]);
+
   const layout = d3.layout.cloud()
     .size([width, height])
-    .words(words.map(([word, freq]) => ({ text: word, size: freq })))
+    .words(words.map(([word, freq]) => ({
+      text: word,
+      size: scale(freq)
+    })))
     .padding(5)
     .rotate(() => ~~(Math.random() * 2) * 90)
-    .fontSize(d => Math.sqrt(d.size) * 10)
+    .fontSize(d => d.size)
     .on("end", draw);
 
   layout.start();
@@ -213,7 +226,7 @@ function renderWordCloud(words) {
         "#80b5c0", "#3c7689", "#479890", "#52b997", "#4daa94"
     ];
 
-    d3.select("#word-cloud").html("")  // clear previous
+    d3.select("#word-cloud").html("")
       .append("svg")
       .attr("width", width)
       .attr("height", height)
@@ -222,18 +235,18 @@ function renderWordCloud(words) {
       .selectAll("text")
       .data(words)
       .join("text")
-      .style("display", "flex")
-      .style("font-size", d => d.size + "px")
+      .style("font-size", d => `${d.size}px`)
       .style("fill", () => {
         const base = colors[Math.floor(Math.random() * colors.length)];
-        const opacity = 0.4 + Math.random() * 0.5;  // 0.4 to 0.9
+        const opacity = 0.4 + Math.random() * 0.5;
         return d3.color(base).copy({ opacity });
-        })
+      })
       .attr("text-anchor", "middle")
       .attr("transform", d => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
       .text(d => d.text);
   }
 }
+
 function renderWordLengthChart(wordLengths) {
     // Count frequency of each word length
     const lengthCounts = {};
