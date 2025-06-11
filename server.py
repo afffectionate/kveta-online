@@ -3,7 +3,7 @@ from sanic import response
 import spacy
 from collections import Counter
 
-app = Sanic("MyHelloWorldApp")
+app = Sanic("KVETAOnline")
 app.static('/static', './static')
 
 nlp = spacy.load("en_core_web_sm")
@@ -70,4 +70,4 @@ async def analyze_text(request):
     return response.json(response_content)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=8000, debug=True)
