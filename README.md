@@ -31,6 +31,13 @@ python server.py
 
 Aplikace poběží na [http://localhost:8000](http://localhost:8000).
 
+### Plánované features:
+- Zpracování českých textů pomocí `udpipe`
+- Vizualizace hapaxů
+- Analýza sentimentu
+- Export grafů
+- Víc obrázků tuleňů
+
 ## 2) Programátorská dokumentace
 
 ### Dependencies
@@ -41,6 +48,9 @@ Aplikace vyžaduje knihovny `Sanic` (asynchronní web server) a `spaCy` (NLP kni
 Viz výše.
 
 ### Architektura
+
+**Frontend**  
+Statická HTML stránka se základním designem v CSS. JavaScript zajišťuje nahrávání souboru a posílání na backend přes fetch API. Po obdržení JSONu dynamicky generuje a zobrazí výsledky pomocí knihoven Plotly a D3js.
 
 **Backend**  
 Server je napsaný v Pythonu se Sanicem. Poskytuje statické soubory (CSS, JS, HTML).
@@ -71,7 +81,4 @@ Vrací response ve formátu:
     "ADJ": 100
   }
 }
-```
-
-**Frontend**  
-Statická HTML stránka se základním designem v CSS. JavaScript zajišťuje nahrávání souboru a posílání na backend přes fetch API. Po obdržení JSONu dynamicky generuje a zobrazí výsledky pomocí knihoven Plotly a D3js.
+``
